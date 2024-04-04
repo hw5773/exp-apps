@@ -9,10 +9,12 @@ SHARED ?= 0
 VERSION ?= 0
 
 ROOT_DIRECTORY=$(PWD)/..
-BIN=test_http_over_tls_client test_http_over_tls_server test_http_over_dtls_client test_http_over_dtls_server
+BIN=test_http_over_tls_client test_http_over_tls_server test_http_over_dtls_client test_http_over_dtls_server new_client
 
 CLIENT_SRC=test_http_over_tls_client.c test_http_over_dtls_client.c
 CLIENT_OBJ=$(CLIENT_SRC:.c=.o)
+NEW_CLIENT_SRC=echo_client.c
+NEW_CLIENT_OBJ=$(NEW_CLIENT_SRC:.c=.o)
 SERVER_SRC=test_http_over_tls_server.c test_http_over_dtls_server.c
 SERVER_OBJ=$(SERVER_SRC:.c=.o)
 
@@ -27,7 +29,7 @@ else
 	LDFLAGS=-L$(ROOT_DIRECTORY)/openssl-1.1.1f-lib/lib64 -lssl -lcrypto -lsimple_http -L. -lpthread
 endif
 
-all: test_http_over_tls_client test_http_over_tls_server test_http_over_dtls_client test_http_over_dtls_server
+all: test_http_over_tls_client test_http_over_tls_server test_http_over_dtls_client test_http_over_dtls_server new_client
 
 test_http_over_tls_client: $(CLIENT_OBJ)
 	$(CC) -o $@ test_http_over_tls_client.o $(LDFLAGS)
@@ -42,7 +44,11 @@ test_http_over_dtls_client: $(CLIENT_OBJ)
 	@echo "LINK => $@"
 
 test_http_over_dtls_server: $(SERVER_OBJ)
-	$(CC) -o $@ test_http_over_dtls_server.o $(OBJS) $(LDFLAGS)
+	$(CC) -o $@ test_http_over_dtls_server.o $(LDFLAGS)
+	@echo "LINK => $@"
+
+new_client: $(NEW_CLIENT_OBJ)
+	$(CC) -o $@ echo_client.o $(LDFLAGS) -lresolv -DMODE=1
 	@echo "LINK => $@"
 
 %.o: %.c
